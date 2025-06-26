@@ -2,11 +2,17 @@
 
 (defn calculate-sum [a b]
   "Calculate the sum of two numbers."
-  (+ a b))
+  (let [result (+ a b)]
+    (println (str "Calculating " a " + " b " = " result))
+    result))
 
 (defn calculate-product [a b]
   "Calculate the product of two numbers."
   (* a b))
+
+(defn calculate-difference [a b]
+  "Calculate the difference of two numbers."
+  (- a b))
 
 (defn main []
   (let [x 10
