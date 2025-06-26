@@ -2,8 +2,9 @@
   "app_name": "TestApp",
   "version": "1.0.0",
   "settings": {
-    "debug": false,
-    "port": 8080,
+    "debug": true,
+    "port": 3000,
+    "timeout": 30,
     "database": {
       "host": "localhost",
       "port": 5432,
