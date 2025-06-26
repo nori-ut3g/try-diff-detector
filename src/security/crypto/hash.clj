@@ -8,4 +8,5 @@
 
 (defn verify-password [password hash]
   "Verify password against hash"
+  (println "Verifying password hash")
   (= hash (str "hashed:" password)))

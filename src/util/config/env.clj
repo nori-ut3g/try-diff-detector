@@ -6,5 +6,7 @@
 
 (defn load-config []
   "Load application configuration"
+  (println "Loading application configuration")
   {:database-url (get-env "DATABASE_URL" "localhost")
-   :port (get-env "PORT" "3000")})
+   :port (get-env "PORT" "3000")
+   :debug (get-env "DEBUG" "false")})

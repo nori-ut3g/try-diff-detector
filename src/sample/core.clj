@@ -17,7 +17,10 @@
 (defn main []
   (let [x 10
         y 20
+        z 5
         sum-result (calculate-sum x y)
-        product-result (calculate-product x y)]
+        product-result (calculate-product x y)
+        diff-result (calculate-difference x z)]
     (println "Sum:" sum-result)
-    (println "Product:" product-result)))
+    (println "Product:" product-result)
+    (println "Difference:" diff-result)))
