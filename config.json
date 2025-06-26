@@ -1,0 +1,17 @@
+{
+  "app_name": "TestApp",
+  "version": "1.0.0",
+  "settings": {
+    "debug": false,
+    "port": 8080,
+    "database": {
+      "host": "localhost",
+      "port": 5432,
+      "name": "testdb"
+    }
+  },
+  "features": {
+    "logging": true,
+    "caching": false
+  }
+}
