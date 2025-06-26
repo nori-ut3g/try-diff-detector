@@ -4,6 +4,7 @@
   
   :plugins [[diff-detector "0.1.0-SNAPSHOT"]]
   
-  :diff-detector {:namespaces ["payment.gateway.stripe"]
+  :diff-detector {:namespaces ["security.*"
+                               "payment.*"]
                   :base-commit "HEAD~1"
                   :target-commit "HEAD"})

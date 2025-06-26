@@ -6,4 +6,6 @@
 
 (defn calculate-fee [amount]
   "Calculate processing fee"
-  (* amount 0.029))
+  (let [base-fee (* amount 0.029)
+        min-fee 0.30]
+    (max base-fee min-fee)))

@@ -2,7 +2,9 @@
 
 (defn authenticate [username password]
   "Authenticate user credentials"
-  (and (seq username) (seq password)))
+  (when (and (seq username) (seq password))
+    (println "Authentication attempt for user:" username)
+    true))
 
 (defn authorize [user role]
   "Check user authorization"

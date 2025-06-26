@@ -2,6 +2,7 @@
 
 (defn log-access [user resource]
   "Log HIPAA access event"
+  (println "HIPAA access logged for user:" user)
   {:timestamp (System/currentTimeMillis)
    :user user
    :resource resource
