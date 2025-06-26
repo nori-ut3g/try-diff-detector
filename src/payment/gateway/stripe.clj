@@ -2,7 +2,8 @@
 
 (defn process-payment [amount card-token]
   "Process payment through Stripe"
-  {:status :success :amount amount :token card-token})
+  (println "Processing payment for amount:" amount)
+  {:status :success :amount amount :token card-token :timestamp (System/currentTimeMillis)})
 
 (defn refund-payment [payment-id amount]
   "Process refund"

@@ -2,7 +2,7 @@
 
 (defn log-info [message]
   "Log info message"
-  (println "[INFO]" message))
+  (println "[INFO]" (str (java.util.Date.) " - " message)))
 
 (defn log-error [message error]
   "Log error message"
