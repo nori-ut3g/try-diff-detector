@@ -2,7 +2,7 @@
   :description "Test project for diff-detector"
   :dependencies [[org.clojure/clojure "1.11.1"]]
   
-  :plugins [[diff-detector "0.1.0-SNAPSHOT"]]
+  :plugins [[com.github.nori-ut3g/diff-detector "0.1.0"]]
   
   :diff-detector {:namespaces ["security.auth.*"
                                "payment.gateway.stripe"
