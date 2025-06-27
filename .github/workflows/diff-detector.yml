@@ -58,66 +58,86 @@ jobs:
           echo EOF
         } >> $GITHUB_ENV
 
-    - name: Comment on PR - Critical Changes Detected
+    - name: Update PR Description - Critical Changes Detected
       if: steps.diff-check.outputs.has_changes == 'true'
       uses: actions/github-script@v7
       with:
         script: |
           const output = process.env.DIFF_OUTPUT;
           
-          const comment = `## ⚠️ Critical Namespace Changes Detected!
+          // Extract changed files from output
+          const lines = output.split('\n');
+          const changedFiles = lines
+            .filter(line => line.trim().startsWith('- src/'))
+            .map(line => line.trim().replace('- ', ''))
+            .join('\n');
           
-          This PR contains changes to security-critical namespaces that require special attention.
-          
-          ### Diff Detector Results:
-          \`\`\`
-          ${output}
-          \`\`\`
-          
-          ### Required Actions:
-          - [ ] 🔍 **Security Review**: Ensure all changes follow security best practices
-          - [ ] 📋 **Compliance Check**: Verify changes meet regulatory requirements  
-          - [ ] 🧪 **Extended Testing**: Run additional security and integration tests
-          - [ ] 👥 **Peer Review**: Get approval from security team lead
-          
-          ### Critical Namespaces Monitored:
-          - \`security.auth.*\` - Authentication and authorization
-          - \`payment.gateway.stripe\` - Payment processing  
-          - \`compliance.*\` - Regulatory compliance
-          - \`sample.core\` - Core business logic
-          
-          > **Note**: This PR will require additional approvals due to critical namespace changes.
-          `;
-          
-          await github.rest.issues.createComment({
-            issue_number: context.issue.number,
+          // Get current PR
+          const { data: pr } = await github.rest.pulls.get({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: comment
+            pull_number: context.issue.number,
+          });
+          
+          const criticalChangesSection = `
+## ⚠️ Critical Namespace Changes Detected
+
+**Changed Files:**
+\`\`\`
+${changedFiles}
+\`\`\`
+
+**Required:** Security review and additional approvals needed.
+          `;
+          
+          // Update PR description
+          const newBody = pr.body ? pr.body + '\n\n' + criticalChangesSection : criticalChangesSection;
+          
+          await github.rest.pulls.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+            body: newBody
           });
 
-    - name: Comment on PR - No Critical Changes
+    - name: Add Critical Changes Label
+      if: steps.diff-check.outputs.has_changes == 'true'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          await github.rest.issues.addLabels({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            labels: ['⚠️ critical-changes', 'security-review-required']
+          });
+
+    - name: Update PR Description - No Critical Changes
       if: steps.diff-check.outputs.has_changes == 'false'
       uses: actions/github-script@v7
       with:
         script: |
-          const comment = `## ✅ No Critical Namespace Changes
-          
-          This PR does not contain changes to monitored critical namespaces.
-          
-          ### Diff Detector Results:
-          \`\`\`
-          ${process.env.DIFF_OUTPUT}
-          \`\`\`
-          
-          Standard review process applies. 👍
-          `;
-          
-          await github.rest.issues.createComment({
-            issue_number: context.issue.number,
+          // Get current PR
+          const { data: pr } = await github.rest.pulls.get({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: comment
+            pull_number: context.issue.number,
+          });
+          
+          const noCriticalChangesSection = `
+## ✅ No Critical Namespace Changes
+
+Standard review process applies.
+          `;
+          
+          // Update PR description
+          const newBody = pr.body ? pr.body + '\n\n' + noCriticalChangesSection : noCriticalChangesSection;
+          
+          await github.rest.pulls.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+            body: newBody
           });
 
     - name: Fail workflow if critical changes detected
