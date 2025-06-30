@@ -67,12 +67,21 @@ jobs:
 
           // Extract changed namespaces from output
           const lines = output.split('\n');
-          const changedNamespaces = lines
+          const changedFiles = lines
             .filter(line => line.trim().startsWith('- src/'))
-            .map(line => line.trim().replace('- ', ''))
-            .join('\n');
+            .map(line => line.trim().replace('- ', ''));
 
-          const commentBody = '⚠️ **Critical namespace changes detected:**\n```\n' + changedNamespaces + '\n```';
+          // Create links to file diffs
+          const prNumber = context.issue.number;
+          const baseUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}/files`;
+          
+          const fileLinks = changedFiles.map(file => {
+            // GitHub uses anchors based on file paths for direct links to diffs
+            const anchor = 'diff-' + file.replace(/\//g, '').replace(/\./g, '');
+            return `- [${file}](${baseUrl}#${anchor})`;
+          }).join('\n');
+
+          const commentBody = '⚠️ **Critical namespace changes detected:**\n\n' + fileLinks;
 
           // Find existing comment from this bot
           const { data: comments } = await github.rest.issues.listComments({
