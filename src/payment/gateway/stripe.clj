@@ -1,7 +1,7 @@
 (ns payment.gateway.stripe)
 
 (defn process-payment [amount card-token]
-  "Process payment through Stripe"
+  "Process payment through Stripe - Updated for test"
   (println "Processing payment for amount:" amount)
   {:status :success :amount amount :token card-token :timestamp (System/currentTimeMillis)})
 
