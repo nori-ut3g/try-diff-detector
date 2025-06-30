@@ -1,10 +1,10 @@
 (ns security.auth.core)
 
 (defn authenticate [username password]
-  "Authenticate user credentials - UPDATED"
+  "Authenticate user credentials - UPDATED - TEST SIMPLE DETECTOR"
   (when (and (seq username) (seq password))
     (println "Authentication attempt for user:" username)
-    (println "New security check added")
+    (println "New security check added - v2")
     true))
 
 (defn authorize [user role]
