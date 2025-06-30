@@ -5,6 +5,7 @@
   (when (and (seq username) (seq password))
     (println "Authentication attempt for user:" username)
     (println "New security check added")
+    (println "Testing simple diff detector")
     true))
 
 (defn authorize [user role]
