@@ -12,7 +12,7 @@ permissions:
 jobs:
   diff-detector:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -26,7 +26,7 @@ jobs:
         java-version: '11'
 
     - name: Setup Leiningen
-      uses: DeLaGuardo/setup-clojure@12.5
+      uses: DeLaGuardo/setup-clojure@v12.5
       with:
         lein: 2.10.0
 
@@ -34,23 +34,23 @@ jobs:
       id: diff-check
       run: |
         echo "Running diff-detector..."
-        
+
         # Run diff-detector and capture output
         set +e  # Don't exit on error
         OUTPUT=$(lein diff-detector --base ${{ github.event.pull_request.base.sha }} --target ${{ github.event.pull_request.head.sha }} --summary 2>&1)
         EXIT_CODE=$?
         set -e
-        
+
         echo "Exit code: $EXIT_CODE"
         echo "Output: $OUTPUT"
-        
+
         # Save output to file for multiline handling
         echo "$OUTPUT" > diff_output.txt
-        
+
         # Set outputs for next steps
         echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
         echo "has_changes=$([ $EXIT_CODE -eq 1 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
-        
+
         # Save output as environment variable (escape newlines)
         {
           echo 'DIFF_OUTPUT<<EOF'
@@ -58,46 +58,30 @@ jobs:
           echo EOF
         } >> $GITHUB_ENV
 
-    - name: Update PR Description - Critical Changes Detected
+    - name: Post Critical Changes Comment
       if: steps.diff-check.outputs.has_changes == 'true'
       uses: actions/github-script@v7
       with:
         script: |
           const output = process.env.DIFF_OUTPUT;
-          
-          // Extract changed files from output
+
+          // Extract changed namespaces from output
           const lines = output.split('\n');
-          const changedFiles = lines
+          const changedNamespaces = lines
             .filter(line => line.trim().startsWith('- src/'))
             .map(line => line.trim().replace('- ', ''))
             .join('\n');
-          
-          // Get current PR
-          const { data: pr } = await github.rest.pulls.get({
+
+          const comment = `⚠️ **Critical namespace changes detected:**
+\`\`\`
+${changedNamespaces}
+\`\`\``;
+
+          await github.rest.issues.createComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            pull_number: context.issue.number,
-          });
-          
-          const criticalChangesSection = `
-## ⚠️ Critical Namespace Changes Detected
-
-**Changed Files:**
-\`\`\`
-${changedFiles}
-\`\`\`
-
-**Required:** Security review and additional approvals needed.
-          `;
-          
-          // Update PR description
-          const newBody = pr.body ? pr.body + '\n\n' + criticalChangesSection : criticalChangesSection;
-          
-          await github.rest.pulls.update({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            pull_number: context.issue.number,
-            body: newBody
+            issue_number: context.issue.number,
+            body: comment
           });
 
     - name: Add Critical Changes Label
@@ -112,33 +96,6 @@ ${changedFiles}
             labels: ['⚠️ critical-changes', 'security-review-required']
           });
 
-    - name: Update PR Description - No Critical Changes
-      if: steps.diff-check.outputs.has_changes == 'false'
-      uses: actions/github-script@v7
-      with:
-        script: |
-          // Get current PR
-          const { data: pr } = await github.rest.pulls.get({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            pull_number: context.issue.number,
-          });
-          
-          const noCriticalChangesSection = `
-## ✅ No Critical Namespace Changes
-
-Standard review process applies.
-          `;
-          
-          // Update PR description
-          const newBody = pr.body ? pr.body + '\n\n' + noCriticalChangesSection : noCriticalChangesSection;
-          
-          await github.rest.pulls.update({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            pull_number: context.issue.number,
-            body: newBody
-          });
 
     - name: Fail workflow if critical changes detected
       if: steps.diff-check.outputs.has_changes == 'true'
