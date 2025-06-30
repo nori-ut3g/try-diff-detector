@@ -72,10 +72,7 @@ jobs:
             .map(line => line.trim().replace('- ', ''))
             .join('\n');
 
-          const comment = `⚠️ **Critical namespace changes detected:**
-\`\`\`
-${changedNamespaces}
-\`\`\``;
+          const comment = '⚠️ **Critical namespace changes detected:**\n```\n' + changedNamespaces + '\n```';
 
           await github.rest.issues.createComment({
             owner: context.repo.owner,
