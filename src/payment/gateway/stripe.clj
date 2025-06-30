@@ -1,7 +1,7 @@
 (ns payment.gateway.stripe)
 
 (defn process-payment [amount card-token]
-  "Process payment through Stripe - Enhanced security validation"
+  "Process payment through Stripe - Enhanced security validation - TEST"
   (println "Processing payment for amount:" amount)
   (when (< amount 0)
     (throw (ex-info "Invalid amount" {:amount amount})))
